@@ -68,59 +68,9 @@ int main(void)
 	
   while(1)
   { 
-		RS485E_TXEN;
-		TxData[0] = 0x01;
-		TxData[1] = 0x04;
-		TxData[2] = 0x00;
-		TxData[3] = 0x00;
-		TxData[4] = 0x00;
-		TxData[5] = 0x01;
-		TxData[6] = 0x31;
-		TxData[7] = 0xCA;
-		USART_ITConfig(USART3, USART_IT_TXE, ENABLE); 
-		TIMDelay_Nms(500);
-		SetTextValue(0,7, PhdataArr);
 		
-		TIMDelay_Nms(500);
 
-		RS485E_TXEN;
-		TxData[0] = 0x01;
-		TxData[1] = 0x04;
-		TxData[2] = 0x00;
-		TxData[3] = 0x08;
-		TxData[4] = 0x00;
-		TxData[5] = 0x01;
-		TxData[6] = 0xB0;
-		TxData[7] = 0x08;
-		USART_ITConfig(USART3, USART_IT_TXE, ENABLE); 
-		TIMDelay_Nms(500);
-		SetTextValue(0,12, TempdataArr);
 
-//		if(KeyFlag == 0)
-//		{
-//			Key_Scan();
-//		}
-//		
-//		
-//		if(KeyFlag)
-//		{
-//			KeyFlag = 0;
-//			
-//			RS485E_TXEN;
-//			
-//			TxData[0] = 0x01;
-//			TxData[1] = 0x04;
-//			TxData[2] = 0x00;
-//			TxData[3] = 0x00;
-//			TxData[4] = 0x00;
-//			TxData[5] = 0x01;
-//			TxData[6] = 0x31;
-//			TxData[7] = 0xCA;
-//			
-//			USART_ITConfig(USART3, USART_IT_TXE, ENABLE); 
-//			
-//			SetTextValue(0,7, PhdataArr);
-//		}
 	}
 
 }
