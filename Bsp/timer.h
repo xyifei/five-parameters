@@ -18,15 +18,16 @@
 
 
 /* 宏定义 --------------------------------------------------------------------*/
-#define TIM3_COUNTER_CLOCK        1000000                  //计数时钟(1M次/秒)
-                                                           //预分频值
-#define TIM3_PRESCALER_VALUE      (SystemCoreClock/TIM3_COUNTER_CLOCK - 1)
-#define TIM3_PERIOD_TIMING        (10 - 1)                 //定时周期（相对于计数时钟:1周期 = 1计数时钟）
+#define TIM3_Period        10 - 1           //定时周期（相对于计数时钟:1周期 = 1计数时钟）
+#define TIM3_Prescaler     72 - 1           //1us
+
+#define TIM4_Period        1000-1           //1us*1000=1ms
+#define TIM4_Prescaler     72 - 1           //1us
 
 /* 函数申明 ------------------------------------------------------------------*/
 void TIMER_Initializes(void);
-void TIMDelay_N10us(uint16_t Times);
-void TIMDelay_Nms(uint16_t Times);
+void delay_10us(uint16_t Times);
+void delay_ms(uint16_t Times);
 
 
 #endif /* _TIMER_H */

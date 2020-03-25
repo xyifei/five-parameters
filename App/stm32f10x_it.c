@@ -26,6 +26,7 @@
 #include "timer.h"
 #include "bsp_rs485.h"
 #include "cmd_queue.h"
+#include "bsp_tim6.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +42,9 @@ extern uint16_t PhData;
 extern uint8_t PhdataArr[10];
 extern uint16_t TempData;
 extern uint8_t TempdataArr[10];
+
+extern uint32_t screen_time;
+extern uint32_t sensor_time;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -255,5 +259,20 @@ void USART3_IRQHandler(void)
 	}
 }
 
+/************************************************
+函数名称 ： TIM4_IRQHandler
+功    能 ： TIM6中断
+参    数 ： 无
+返 回 值 ： 无
+作    者 ： xuyifei
+*************************************************/
+void  TIM4_IRQHandler (void)
+{
+	if ( TIM_GetITStatus( TIM4, TIM_IT_Update) != RESET ) 
+	{	
+		sensor_time++;
+		TIM_ClearITPendingBit(TIM4 , TIM_FLAG_Update);  		 
+	}		 	
+}
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

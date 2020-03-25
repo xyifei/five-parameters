@@ -51,7 +51,7 @@ void Key_Scan(void)
 {			
 	if(GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_6) == 0)  
 	{	 
-		TIMDelay_Nms(500);
+		delay_ms(500);
 		while(GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_6) == 1); 		
 		KeyFlag = 1;	 
 	}

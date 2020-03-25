@@ -22,16 +22,35 @@ Dialog DLL:      TCM.DLL V1.35.1.0
  
 <h2>Project:</h2>
 C:\Users\XYF\Desktop\five-parameters\Demo.uvprojx
-Project File Date:  03/20/2020
+Project File Date:  03/24/2020
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Targets'
 compiling main.c...
+App\main.c(78): warning:  #177-D: variable "test_value"  was declared but never referenced
+  	static int32 test_value = 0;                                                     //测试值
+App\main.c(79): warning:  #177-D: variable "timer_tick_last_update"  was declared but never referenced
+  	uint32 timer_tick_last_update = 0;                                               //上一次更新的时间
+App\main.c(414): warning:  #186-D: pointless comparison of unsigned integer with zero
+           if(Select_H>=0&&Select_H<=6)                                                       //0~6小时，凌晨  
+App\main.c(481): warning:  #167-D: argument of type "unsigned char *" is incompatible with parameter of type "const char *restrict"
+          sscanf(str,"%ld",&value);                                                    //把字符串转换为整数 
+App\main.c(531): warning:  #167-D: argument of type "unsigned char *" is incompatible with parameter of type "char *restrict"
+              sprintf(back,"%c",(255-value*2));                                        //设置背光亮度 背光值范围 0~255，0最亮，255最暗
+App\main.c(49): warning:  #177-D: variable "progress_value"  was declared but never referenced
+  static int32 progress_value = 0;                                                     //进度条测试值
+App\main.c(51): warning:  #177-D: variable "update_en"  was declared but never referenced
+  static uint8 update_en = 0;                                                          //更新标记
+App\main.c(56): warning:  #177-D: variable "second_flag"  was declared but never referenced
+  static int32 second_flag=0;                                                          //时间标志位
+App\main.c(57): warning:  #177-D: variable "icon_flag"  was declared but never referenced
+  static int32 icon_flag = 0;                                                          //图标标志位
+App\main.c: 9 warnings, 0 errors
 linking...
-Program Size: Code=3296 RO-data=268 RW-data=68 ZI-data=1628  
+Program Size: Code=9388 RO-data=780 RW-data=112 ZI-data=1624  
 FromELF: creating hex file...
-".\Objects\ExecutableFile.axf" - 0 Error(s), 0 Warning(s).
+".\Objects\ExecutableFile.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Software Packages used:</h2>
 

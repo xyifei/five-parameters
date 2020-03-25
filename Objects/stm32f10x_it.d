@@ -35,3 +35,4 @@
 .\objects\stm32f10x_it.o: .\Bsp\hmi_driver.h
 .\objects\stm32f10x_it.o: .\Bsp\usart.h
 .\objects\stm32f10x_it.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\stm32f10x_it.o: .\Bsp\bsp_tim6.h

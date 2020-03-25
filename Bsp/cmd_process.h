@@ -68,6 +68,8 @@ typedef struct
 
 #pragma pack(pop)
 
+void UpdateUI(void);
+
 /*! 
 *  \brief  ÎÕÊÖÍ¨Öª
 */
