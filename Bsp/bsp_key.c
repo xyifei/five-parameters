@@ -40,13 +40,12 @@ void GPIO_Key_Configuration(void)
 	GPIO_SetBits(GPIOA, GPIO_Pin_0);
 }
 
-/*
- * 函数名：Key_Scan
- * 描述  ：检测是否有按键按下
- * 输入  ：GPIOx：x 可以是 A，B，C，D或者 E
- *		     GPIO_Pin：待读取的端口位 	
- * 输出  ：KEY_OFF(没按下按键)、KEY_ON（按下按键）
- */
+/*! 
+*  \brief    按键检测
+*  \details  检测是否有按键按下
+*  \param    GPIOx：x 可以是 A，B，C，D或者 E
+*  \param    GPIO_Pin：待读取的端口位 
+*/
 void Key_Scan(void)
 {			
 	if(GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_6) == 0)  

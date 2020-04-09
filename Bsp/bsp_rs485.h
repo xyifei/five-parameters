@@ -21,5 +21,6 @@
 void rs485_Init(void);
 void UartASendStr (u8 *pucStr, u8 ulNum);
 void RS485_Send(u8 *pucStr, u8 ulNum);
+uint16_t usMBCRC16( uint8_t * pucFrame, uint16_t usLen );
 
 #endif

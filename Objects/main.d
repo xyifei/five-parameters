@@ -36,3 +36,4 @@
 .\objects\main.o: .\Bsp\hmi_driver.h
 .\objects\main.o: .\Bsp\cmd_queue.h
 .\objects\main.o: .\Bsp\cmd_process.h
+.\objects\main.o: App\stm32f10x_it.h

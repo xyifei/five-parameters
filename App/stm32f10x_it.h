@@ -45,6 +45,10 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 
+long FloatToHex(float HEX);
+float HexToDecimal(uint8_t *Byte);
+void NumToArr(uint8_t *Arr, uint32_t data);
+
 #ifdef __cplusplus
 }
 #endif

@@ -27,27 +27,155 @@
 #include "bsp_rs485.h"
 #include "cmd_queue.h"
 #include "bsp_tim6.h"
+#include "hmi_driver.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-extern uint8_t RxData[10];
+extern uint8_t RxData[32];
 extern uint8_t RxLen;
 extern uint8_t TxData[10];
 extern uint8_t TxLen;
 
-extern uint16_t PhData;
+extern uint32_t PhData;
 extern uint8_t PhdataArr[10];
-extern uint16_t TempData;
+extern uint32_t TempData;
 extern uint8_t TempdataArr[10];
+extern float ConData;
+extern uint8_t CondataArr[10];
+extern float DoData;
+extern uint8_t DodataArr[10];
+
 
 extern uint32_t screen_time;
 extern uint32_t sensor_time;
+extern uint32 ph_connect_time;
+extern uint32 con_connect_time;
+extern uint32 do_connect_time;
+extern uint32 tur_connect_time;
+
+long a = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+
+/*! 
+*  \brief  将float类型的书转换成16进制
+*  \return 返回一个long 32位的数据
+*  \param  HEX 带转换的float类型的值 
+*/
+long FloatToHex(float HEX)
+{
+	return *(long *)&HEX;
+}
+
+/*! 
+*  \brief  将16进制的数转换成float类型的数
+*  \return 返回一个float类型数据
+*  \param  Byte 待转换的16进制的值 
+*/
+float HexToDecimal(uint8_t *Byte)
+{
+	return *((float *)Byte);
+}
+
+/*! 
+*  \brief  将数字转换成字符存在数组里，以展示在屏幕上
+*  \param  Arr  存放的数组
+*  \param  data 整型数据 
+*/
+void NumToArr(uint8_t *Arr, uint32_t data)
+{	
+	if(data<100)
+	{
+		Arr[0] = '0';
+		Arr[1] = '.';
+		Arr[2] = data/10+48;
+		Arr[3] = data%10+48;
+		Arr[4] = ' ';
+		Arr[5] = ' ';
+	}
+	else if(data>=100 && data<1000)
+	{
+		Arr[0] = data/100+48;
+		Arr[1] = '.';
+		Arr[2] = data%100/10+48;
+		Arr[3] = data%100%10+48;
+		Arr[4] = ' ';
+		Arr[5] = ' ';
+	}
+	else if(data>=1000 && data<10000)
+	{
+		Arr[0] = data/1000+48;
+		Arr[1] = data%1000/100+48;
+		Arr[2] = '.';
+		Arr[3] = data%1000%100/10+48;
+		Arr[4] = data%1000%100%10+48;
+		Arr[5] = ' ';
+	}
+	else if(data>=10000 && data<100000)
+	{
+		Arr[0] = data/10000+48;
+		Arr[1] = data%10000/1000+48;
+		Arr[2] = data%1000/100+48;
+		Arr[3] = '.';
+		Arr[4] = data%100/10+48;
+		Arr[5] = data%100%10+48;
+	}
+}
+
+/*! 
+*  \brief    处理PH传感器的数据
+*/
+void PhSensor(void)
+{
+	PhData = RxData[3] * 256 + RxData[4];
+	TempData = RxData[20]*10;
+	
+	NumToArr(PhdataArr, PhData);
+	NumToArr(TempdataArr, TempData);
+}
+
+/*! 
+*  \brief    处理电导率传感器的数据
+*/
+void ConductivitySensor(void)
+{
+	uint8_t buf[4];
+	
+	buf[0] = RxData[4];
+	buf[1] = RxData[3];
+	buf[2] = RxData[6];
+	buf[3] = RxData[5];
+	ConData = HexToDecimal(buf);
+	
+	NumToArr(CondataArr, ConData*100);
+}
+
+/*! 
+*  \brief    处理溶解氧传感器的数据
+*/
+void DoSensor(void)
+{
+	uint8_t buf[4];
+	buf[0] = RxData[4];
+	buf[1] = RxData[3];
+	buf[2] = RxData[6];
+	buf[3] = RxData[5];
+	DoData = HexToDecimal(buf);
+	
+	NumToArr(DodataArr, DoData*100);
+}
+
+/*! 
+*  \brief    处理浊度传感器的数据
+*/
+void TurbiditySensor(void)
+{
+	a = FloatToHex(2.4);
+}
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
@@ -183,79 +311,83 @@ void USART1_IRQHandler(void)
 *************************************************/
 void USART3_IRQHandler(void)
 {
+	static uint8 i = 0;
+	static uint8_t RecFlag = 0;
 	
   if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
   {
     //USART1_SendByte(USART_ReceiveData(USART1));  //发送接收到的字符数据
-		RxData[RxLen++] = USART_ReceiveData(USART3);
+		RxData[RxLen] = USART_ReceiveData(USART3);
 		
-		if(RxLen == 7)
+		if(RxData[0]==0x01 || RxData[0]==0x02 || RxData[0]==0x03 || RxData[0]==0x0A)
+		{
+			RecFlag = 1;
+		}
+		
+		if(RecFlag == 1)
+		{
+			RxLen++;
+		}
+		
+		if(RxLen == 25)
 		{
 			RxLen = 0;
+			RecFlag = 0;
 			
-			PhData = RxData[3] * 256 + RxData[4];
-			
-			if(PhData<100)
+			switch(RxData[0])
 			{
-				PhdataArr[0] = '0';
-				PhdataArr[1] = '.';
-				PhdataArr[2] = PhData/10+48;
-				PhdataArr[3] = PhData%10+48;
-			}
-			else if(PhData>=100 && PhData<1000)
-			{
-				PhdataArr[0] = PhData/100+48;
-				PhdataArr[1] = '.';
-				PhdataArr[2] = PhData%100/10+48;
-				PhdataArr[3] = PhData%100%10+48;
-			}
-			else
-			{
-				PhdataArr[0] = PhData/1000+48;
-				PhdataArr[1] = PhData%1000/100+48;
-				PhdataArr[2] = '.';
-				PhdataArr[3] = PhData%1000%100/10+48;
-				PhdataArr[4] = PhData%1000%100%10+48;
-			}
-			
-			TempData = RxData[4];
-			
-			if(TempData<100)
-			{
-				TempdataArr[0] = TempData/10+48;
-				TempdataArr[1] = '.';
-				TempdataArr[0] = TempData%10+48;
-			}
-			else
-			{
-				TempdataArr[0] = TempData/100+48;
-				TempdataArr[1] = TempData%100/10+48;
-				TempdataArr[2] = '.';
-				TempdataArr[3] = TempData%100%10+48;
-			}
+				case 0x01:
+					ph_connect_time = 0;
+					PhSensor();
+					break;
+				case 0x02:
+					con_connect_time = 0;
+					ConductivitySensor();
+					break;
+				case 0x03:
+					do_connect_time = 0;
+					DoSensor();
+					break;
+				case 0x0A:
+					tur_connect_time = 0;
+					TurbiditySensor();
+					break;
+			}				
 		}
   }
 	
 	if(USART_GetITStatus(USART3, USART_IT_TXE) != RESET)
 	{
-		if(TxLen>0)
+		if(i<TxLen)
 		{
-			USART_SendData(USART3, TxData[8-TxLen]);
+			USART_SendData(USART3, TxData[i]);
+			i++;
 		}
 		else
 		{
 			while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);
 			USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
-			RS485E_RXEN;
-			
+			RS485E_RXEN;	
+			i=0;
 		}
 		
-		if(TxLen == 0)
-		{
-			TxLen = 9;
-		}
-		
-		TxLen--;
+//		if(TxLen>0)
+//		{
+//			USART_SendData(USART3, TxData[8-TxLen]);
+//		}
+//		else
+//		{
+//			while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);
+//			USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
+//			RS485E_RXEN;	
+//		}
+//		
+//		if(TxLen == 0)
+//		{
+//			TxLen = 9;
+//		}
+//		
+//		TxLen--;
 	}
 }
 
@@ -271,6 +403,11 @@ void  TIM4_IRQHandler (void)
 	if ( TIM_GetITStatus( TIM4, TIM_IT_Update) != RESET ) 
 	{	
 		sensor_time++;
+		screen_time++;
+		ph_connect_time++;
+		con_connect_time++;
+		do_connect_time++;
+		tur_connect_time++;
 		TIM_ClearITPendingBit(TIM4 , TIM_FLAG_Update);  		 
 	}		 	
 }
